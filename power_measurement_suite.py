@@ -1,13 +1,13 @@
-import SCPI
+from agilent.dmm34411A.dmm34411A import dmm34411A
 import time
 import numpy
 
 totalSamples = 50000
 sampleFreq = 500
 
-freq= SCPI.SCPI("172.17.5.121")
-voltage = SCPI.SCPI("172.17.5.125")
-current = SCPI.SCPI("172.17.5.124")
+freq    = dmm34411A("172.17.5.121")
+voltage = dmm34411A("172.17.5.125")
+current = dmm34411A("172.17.5.124")
 
 #setup freq gen
 freq.setSquare()

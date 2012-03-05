@@ -1,7 +1,7 @@
-import rigol
+from rigol.DS1000.DS1000 import DS1000
 import time
 
-rs = rigol.RigolScope("/dev/usbtmc0")
+rs = DS1000("/dev/usbtmc0")
 
 print rs.getName()
 rs.stop()
