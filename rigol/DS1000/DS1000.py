@@ -31,7 +31,7 @@ class usbtmc:
         return as much as can be read from the device. """
         return self.read(2097152)
 
-class RigolScope:
+class DS1000:
     """Class to control a Rigol DS1000 series oscilloscope"""
 
     CHANNELS = ["CHAN1", "CHAN2", "MATH"]
@@ -199,17 +199,17 @@ class RigolScope:
         self.meas.write(":KEY:FORC")
 
 
-if __name__ == "__main__":
-    rs = RigolScope("/dev/usbtmc0")
-    print "Device Name: ", rs.getName()
-    print "Resetting Device"
-    rs.reset()
-    print "Stop"
-    rs.stop()
-    print "Configure for single acquisition"
-    rs.triggerSingleEdge()
-    print "Start"
-    rs.run()
+#if __name__ == "__main__":
+#    rs = DS1000("/dev/usbtmc0")
+#    print "Device Name: ", rs.getName()
+#    print "Resetting Device"
+#    rs.reset()
+#    print "Stop"
+#    rs.stop()
+#    print "Configure for single acquisition"
+#    rs.triggerSingleEdge()
+#    print "Start"
+#    rs.run()
 
 
 

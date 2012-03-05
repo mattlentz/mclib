@@ -2,26 +2,37 @@ import time
 import requests
 import xml.etree.ElementTree as ET
 
-class DP1308a:
-	url = 'http://{0}.eecs.umich.edu/lxi/infomation.xml?{1}&timeStamp={2}'
-	hostname = ''
-	
-	def __init__ (self, hostname):
-		self.hostname = hostname
+# RAIL IDS:
+#  0: 6V (red)
+#  1: 25V (yellow)
+#  2: -25V (green)
 
+class DP1308a:
+	url = 'http://{0}/lxi/infomation.xml?{1}&timeStamp={2}'
+	domain = ''
+	
+	def __init__ (self, domain):
+		self.domain = domain
+
+	# Send command to the power supply.
+	# Returns the resulting XML status update
 	def send_function (self, function_id):
 		timestamp = long(time.time()*1000)
-		url = self.url.format(self.hostname, function_id, timestamp)
+		url = self.url.format(self.domain, function_id, timestamp)
 		req = requests.get(url)
 		return req
 
+	# Shortened name for send_request.
+	# Does not return the XML status.
 	def sf (self, function_id):
 		self.send_function(function_id)
 
+	# Returns the value of a field in the XML status sheet.
 	def check_field (self, field):
 		req = self.send_function(0)
 		return ET.XML(req.content).find(field).text
 
+	# Queries the XML status sheet to determine if a power rail is on.
 	def check_rail_power (self, rail, value):
 		names = ['P6STAT', 'P25STAT', 'N25STAT']
 		rail = int(rail)
@@ -34,6 +45,7 @@ class DP1308a:
 	def check_rail_off (self, rail):
 		return self.check_rail_power(rail, 'OFF')
 
+	# Turns a rail on or off.
 	def set_rail_power (self, rail, turn_on=True):
 		power_buttons = [8273, 8241, 8257]
 		rail = int(rail)
@@ -81,6 +93,8 @@ class DP1308a:
 		self.enter_number(current)
 		self.enter_ok()
 
+	# The following functions just make sending button presses to the
+	#  power supply easier.
 	def enter_number (self, num):
 		val = str(num)
 		for c in val:
@@ -100,9 +114,3 @@ class DP1308a:
 
 	def enter_ok (self):
 		self.sf(8305)
-
-
-
-ps = DP1308a('lab4908ps01')
-ps.set_voltage(1, 1.0)
-#ps.set_all_off()
