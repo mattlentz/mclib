@@ -31,6 +31,9 @@ class dmm34411A:
 		#set initial voltage
 		self.s.send("VOLTage:HIGH %.2f\n"%(high,))
 		self.s.send("VOLTage:LOW %.2f\n"%(low,))
+
+	def setVoltagePP(self, PP):
+		self.s.send("VOLT %.2f VPP\n" % (PP))
 	
 	def setFrequency(self, freq):
 		#set initial frequency
@@ -44,6 +47,22 @@ class dmm34411A:
 		self.s.send("SWE:TIME %.3f\n"%(time,))
 		self.s.send("SWE:STAT ON\n")
 
+	def setLoad(self, ohms):
+		MIN = 1
+		MAX = 10000
+		if ohms is None:
+			ohms = "INF"
+		elif (ohms < MIN):
+			print "Warning: Minimum load is 1ohm. Set to 1."
+			ohms = "1"
+		elif (ohms > MAX):
+			print "Warning: Maximum load is 10kohm. Set to 10K."
+			print "         To set to HighZ mode, set ohms=None"
+			ohms = "10000"
+		else:
+			ohms = str(ohms)
+
+		self.s.send("OUTPut:LOAD %s\n" % (ohms))
 
 	def setOutput(self, status):
 		if status:
@@ -55,16 +74,23 @@ class dmm34411A:
 # following are for the agilent multimeters A34410a
 	def setCurrentDC(self, limit="AUTO", precision=""):
 		if precision == "":
-		self.s.send("CONF:CURR:DC AUTO\n")
-	else:
-		self.s.send("CONF:CURR:DC %s,%s\n"%(limit, precision))
-		self.s.send("FORMAT REAL, 64\n")
+			self.s.send("CONF:CURR:DC AUTO\n")
+		else:
+			self.s.send("CONF:CURR:DC %s,%s\n"%(limit, precision))
+			self.s.send("FORMAT REAL, 64\n")
 	
 	def setVoltageDC(self, limit="AUTO", precision=""):
 		if precision == "":
 			self.s.send("CONF:VOLT:DC AUTO\n")
 		else:
 			self.s.send("CONF:VOLT:DC %s,%s\n"%(limit, precision))
+		self.s.send("FORMAT REAL, 64\n")
+	
+	def setVoltageAC(self, limit="AUTO", precision=""):
+		if precision == "":
+			self.s.send("CONF:VOLT:AC AUTO\n")
+		else:
+			self.s.send("CONF:VOLT:AC %s,%s\n"%(limit, precision))
 		self.s.send("FORMAT REAL, 64\n")
 	
 	def setTriggerSource(self, source="EXT"):
@@ -76,25 +102,36 @@ class dmm34411A:
 	def setInitiate(self):
 		self.s.send("INIT\n")
 
+	def getSingleMeasurement(self):
+		self.s.send("FETC?\n")
+		r = ""
+		while '\n' not in r:
+			r += self.s.recv(1)
+
+		return r
+
 	def getMeasurements(self):
 		self.s.send("R?\n")
-        c = self.s.recv(1)
+		c = self.s.recv(1)
 		if c != "#":
-	    	print "*%s*"%(c,)
-            return ""
-        # read the number of digits that follow
-        l = int(self.s.recv(1))
+			print "*%s*"%(c,)
+			return ""
+		# read the number of digits that follow
+		l = int(self.s.recv(1))
 		length = int(self.s.recv(l))
 	
 		l = 0
 		r = ""
 		while l < int(length):
-            c = self.s.recv(int(length)-l)
+			c = self.s.recv(int(length)-l)
 			l += len(c)
 			r += c
 	
 		# read the newline character
 		self.s.recv(1)
+
+		print "l",l
+		print "r",r
 	
 		m = struct.unpack(">%dd"%(int(length)/8,), r)
 	
