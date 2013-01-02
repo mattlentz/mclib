@@ -5,6 +5,11 @@ import urllib2
 class Miso2024 ():
 	def __init__ (self, scope_host_name):
 		self.ip = scope_host_name
+		try:
+			req = urllib2.Request('http://' + self.ip)
+			urllib2.urlopen(req)
+		except:
+			raise Exception('Error: Could not connect to {0}'.format(self.ip))
 
 	def doDownloadData(self, channel):
 		url = 'http://' + self.ip + '/data/Tek_CH' + str(channel) + '_Wfm.csv'

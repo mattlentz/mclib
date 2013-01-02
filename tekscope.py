@@ -4,7 +4,7 @@
 import json
 import os
 import sys
-from tektronix.miso2024.miso2024 import Miso2024
+from tektronix.miso2024 import Miso2024
 
 def rangeFromString(cmdVar):
 	ret = set()
@@ -55,7 +55,11 @@ print 'Data collection typically takes a long time per channel.'
 
 outputData = []
 for i in channels:
-	miso = Miso2024(scope)
+	try:
+		miso = Miso2024(scope)
+	except Exception as e:
+		print e
+		quit()
 	dataSet = miso.doDownloadData(i)
 	print 'Recieved data set for channel {0} (sample row): {1}' \
 	      .format(i, json.dumps(dataSet[0]))
