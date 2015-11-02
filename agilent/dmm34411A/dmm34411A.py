@@ -92,12 +92,29 @@ class dmm34411A:
 		else:
 			self.s.send("CONF:VOLT:AC %s,%s\n"%(limit, precision))
 		self.s.send("FORMAT REAL, 64\n")
-	
+
+        def setVoltageDCAperture(self, time):
+                self.s.send("VOLT:APER:ENAB ON\n")
+                self.s.send("VOLT:DC:APER %s\n"%(time))
+
+        def setVoltageDCIntegration(self, nplc):
+                self.s.send("VOLT:DC:NPLC %s\n"%(nplc))
+
 	def setTriggerSource(self, source="EXT"):
 		self.s.send("TRIGGER:SOURCE %s\n"%(source,))
 	
 	def setTriggerCount(self, count="INF"):
 		self.s.send("TRIGGER:COUNT %s\n"%(count,))
+
+        def setTriggerDelay(self, time):
+                self.s.send("TRIG:DEL %s\n"%(time))
+
+        def setSamplesPerTrigger(self, count="1"):
+                self.s.send("SAMP:COUN %s\n"%(count))
+
+        def setSampleTime(self):
+                self.s.send("SAMP:SOUR TIM\n")
+                self.s.send("SAMP:TIM MIN\n")
 	
 	def setInitiate(self):
 		self.s.send("INIT\n")
@@ -130,8 +147,8 @@ class dmm34411A:
 		# read the newline character
 		self.s.recv(1)
 
-		print "l",l
-		print "r",r
+		#print "l",l
+		#print "r",r
 	
 		m = struct.unpack(">%dd"%(int(length)/8,), r)
 	
